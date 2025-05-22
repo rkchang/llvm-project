@@ -86,6 +86,12 @@ struct constant_op_binder {
     if (!op->hasTrait<OpTrait::ConstantLike>())
       return false;
 
+    llvm::outs() << "op print: ";
+    op->dump();
+    llvm::outs() << "op name: ";
+    op->getName().dump();
+    llvm::outs() << "\n";
+
     // Fold the constant to an attribute.
     SmallVector<OpFoldResult, 1> foldedOp;
     LogicalResult result = op->fold(/*operands=*/std::nullopt, foldedOp);

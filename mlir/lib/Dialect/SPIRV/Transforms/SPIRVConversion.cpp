@@ -861,6 +861,7 @@ struct FuncOpConversion final : OpConversionPattern<func::FuncOp> {
   LogicalResult
   matchAndRewrite(func::FuncOp funcOp, OpAdaptor adaptor,
                   ConversionPatternRewriter &rewriter) const override {
+    llvm::outs() << "match and rewrite" << "\n";
     FunctionType fnType = funcOp.getFunctionType();
     if (fnType.getNumResults() > 1)
       return failure();
@@ -868,6 +869,13 @@ struct FuncOpConversion final : OpConversionPattern<func::FuncOp> {
     TypeConverter::SignatureConversion signatureConverter(
         fnType.getNumInputs());
     for (const auto &argType : enumerate(fnType.getInputs())) {
+      auto memRefType = dyn_cast<MemRefType>(argType.value());
+      llvm::outs() << "Checked memreftype" << memRefType << "\n";
+      if (memRefType) {
+        llvm::outs() << "Failing to convert memref typ e: " << memRefType << "\n";
+        // SPIR-V does not support memref types as function arguments.
+        return failure();
+      }
       auto convertedType = getTypeConverter()->convertType(argType.value());
       if (!convertedType)
         return failure();
